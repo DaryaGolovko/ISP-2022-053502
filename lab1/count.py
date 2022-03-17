@@ -2,12 +2,11 @@ import re
 
 
 class Tasks:
-
+    """Class for tasks from lab1"""
     @staticmethod
     def average_word_num(inp: str) -> int:
         """Counts an average number of words in the text"""
         sentences = re.split(r'[.?!]', inp)
-        sentences.remove("")
         sum_words = 0
         for i in sentences:
             if sentences != "":
@@ -61,4 +60,7 @@ class Tasks:
         for i in sorted_keys:
             sorted_dict[i] = n_grammas[i]
         for i in range(k + 1):
+            if i >= len(sorted_dict):
+                print("No such element")
+                break
             print(sorted_dict.popitem())
