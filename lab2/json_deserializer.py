@@ -1,24 +1,27 @@
 import types
 import marshal
 import importlib
+import inspect
 
 
 class Deserializer:
 
     @staticmethod
     def deserialize_function(obj: dict) -> types.FunctionType:
-        code: types.CodeType = marshal.loads(obj["code"].encode())
+        code: types.CodeType = marshal.loads(obj["code"].encode("cp437"))
         globs = Deserializer.deserialize_dict(obj["globals"])
 
-        for i in obj["libs"]:
-            globs[i] = importlib.import_module(i)
+        for i in obj["modules"]:
+            if inspect.ismodule(i):
+                print("lol")
+                globs[i] = importlib.import_module(i)
 
         return types.FunctionType(code, globs, obj["name"])
 
     @staticmethod
-    def deserialize_class(obj: dict) -> object:
+    def deserialize_class(obj: dict) -> type:
         return type(obj["name"], tuple(Deserializer.deserialize_list(obj["bases"])),
-                    Deserializer.deserialize_dict(obj["attributes"]) | Deserializer.deserialize_dict(obj["methods"]))
+                    Deserializer.deserialize_dict(obj["attributes"]) and Deserializer.deserialize_dict(obj["methods"]))
 
     @staticmethod
     def deserialize_class_object(obj: dict) -> object:
@@ -30,7 +33,6 @@ class Deserializer:
 
     @staticmethod
     def deserialize_dict(obj: dict) -> dict or type:
-
         if obj.get("type") is not None:
             if obj["type"] == "function":
                 return Deserializer.deserialize_function(obj)
@@ -67,6 +69,7 @@ class Deserializer:
 
     @staticmethod
     def loads(obj) -> object:
+
         if type(obj) is int or type(obj) is float or type(obj) is bool or type(obj) is str:
             return obj
 
@@ -76,5 +79,12 @@ class Deserializer:
         elif type(obj) is set:
             return Deserializer.deserialize_set(obj)
 
-        elif type(obj) is dict:
-            return Deserializer.deserialize_dict(obj)
+        elif obj.get("type") is not None:
+            if obj["type"] == "function":
+                return Deserializer.deserialize_function(obj)
+
+            if obj["type"] == "class":
+                return Deserializer.deserialize_class(obj)
+
+            if obj["type"] == "object":
+                return Deserializer.deserialize_class_object(obj)

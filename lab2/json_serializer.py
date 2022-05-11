@@ -20,32 +20,32 @@ class Serializer:
         return str(s)
 
     @staticmethod
-    def serialize_iterable(obj) -> str:
+    def serialize_iterable(obj) -> dict:
         if type(obj) is dict:
             s = {}
             a = dict(obj)
             for i, j in a.items():
                 s[i] = Serializer.dumps(j)
-            return str(s)
+            return s
         elif type(obj) is set:
             s = set()
             for i in obj:
                 s.add(Serializer.dumps(i))
-            return str(s)
+            return s
         elif type(obj) is list:
             s = []
             for i in obj:
                 s.append(Serializer.dumps(i))
-            return str(s)
+            return s
         elif type(obj) is tuple:
             l = list()
             for i in obj:
                 l.append(Serializer.dumps(i))
             s = tuple(l)
-            return str(s)
+            return s
 
     @staticmethod
-    def serialize_function(func: types.FunctionType) -> str:
+    def serialize_function(func: types.FunctionType) -> dict:
         libs = []
         globs = {}
 
@@ -61,18 +61,19 @@ class Serializer:
                 continue
 
             globs[i] = Serializer.dumps(func.__globals__.get(i))
-
+        code: types.CodeType = func.__code__
+        code_string = str(marshal.dumps(code), "cp437")
         s = {"type": 'function',
              "name": func.__name__,
-             "code": str(marshal.dumps(func.__code__)),
+             "code": code_string,
              "globals": globs,
              "modules": libs
              }
 
-        return str(s)
+        return s
 
     @staticmethod
-    def serialize_class(obj) -> str:
+    def serialize_class(obj) -> dict:
         methods = {}
         for func in inspect.getmembers(obj, predicate=inspect.isfunction):
             methods[func[0]] = Serializer.serialize_function(func[1])
@@ -89,7 +90,7 @@ class Serializer:
 
         s = {"type": "class", "name": obj.__name__, "bases": bases, "methods": methods, "attributes": attr}
 
-        return str(s)
+        return s
 
     @staticmethod
     def dumps(obj):
