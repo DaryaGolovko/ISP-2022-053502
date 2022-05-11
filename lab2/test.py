@@ -43,8 +43,10 @@ def test_class():
 
 if __name__ == "__main__":
     test_primitives()
-    test_class()
+
     test_func()
+    test_class()
+
     test_list()
     test_dict()
 

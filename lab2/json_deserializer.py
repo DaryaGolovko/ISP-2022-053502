@@ -11,10 +11,10 @@ class Deserializer:
         code: types.CodeType = marshal.loads(obj["code"].encode("cp437"))
         globs = Deserializer.deserialize_dict(obj["globals"])
 
-        for i in obj["modules"]:
-            if inspect.ismodule(i):
-                print("lol")
+        for i in obj["globals"]:
+            if importlib.import_module(i) is not None:
                 globs[i] = importlib.import_module(i)
+                break
 
         return types.FunctionType(code, globs, obj["name"])
 
