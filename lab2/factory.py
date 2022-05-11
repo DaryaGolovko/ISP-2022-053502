@@ -1,4 +1,4 @@
-import json_serializer
+import myjson
 import myyaml
 import mytoml
 
@@ -6,9 +6,9 @@ import mytoml
 class Creator:
 
     @staticmethod
-    def create_serializer(inp: str) -> object:
+    def create(inp: str):
         if inp == "json":
-            return json_serializer.Serializer()
+            return myjson.Json()
 
         elif inp == "yaml":
             return myyaml.Yaml()
